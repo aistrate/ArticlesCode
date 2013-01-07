@@ -4,19 +4,16 @@ import Control.Monad (when)
 data ITree a = Leaf (Int -> a) 
              | Node [ITree a]
 
-subtrees (Node ts) = ts
-
 
 instance Functor ITree where
-  fmap g (Leaf h)      = Leaf (g . h)
-  fmap g (Node [])     = Node []
-  fmap g (Node (t:ts)) = Node (fmap g t : subtrees (fmap g (Node ts)))
+  fmap g (Leaf h)  = Leaf (g . h)
+  fmap g (Node ts) = Node (map (fmap g) ts)
 
 
 -- Tests
 
 instance Eq a => Eq (ITree a) where
-  Leaf g  == Leaf h    = g 0 == h 0    -- test for the arbitrary value 0
+  Leaf g  == Leaf h    = g 0 == h 0    -- test for arbitrary value 0
   Node ts == Node ts'  = ts  == ts'
   _       == _         = False
 
@@ -38,6 +35,6 @@ testTree05 = fmap (replicate 2) (Node [Leaf (v 'x')]) /= Leaf (v "xx")
 main = do
   let tests = [testTree01, testTree02, testTree03, testTree04, testTree05]
   print tests
-  print $ (show . length $ filter id tests) ++ " tests succeeded"
+  print $ (show . length $ filter id tests) ++ " tests SUCCEEDED"
   when (any not tests) $
-    print $ (show . length $ filter not tests) ++ " tests failed"
+    print $ (show . length $ filter not tests) ++ " tests FAILED"
